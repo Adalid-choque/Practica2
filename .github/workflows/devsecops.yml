@@ -79,7 +79,7 @@ jobs:
     - name: Code Quality - ESLint Frontend
       run: |
         cd frontend
-        npm run lint || true
+        npm run lint
 
     - name: Test frontend
       run: |
