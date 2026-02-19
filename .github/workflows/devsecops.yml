@@ -68,13 +68,26 @@ jobs:
     # =========================
     # 4. Install & Test Frontend
     # =========================
-    - name: Install & Test frontend
+    - name: Install frontend dependencies
       run: |
         cd frontend
         npm ci
-        npm test
+
     # =========================
-    # 5. SAST – Semgrep
+    # 5. Code Quality - ESLint
+    # =========================
+    - name: Code Quality - ESLint Frontend
+      run: |
+        cd frontend
+        npm run lint
+
+    - name: Test frontend
+      run: |
+        cd frontend
+        npm test
+
+    # =========================
+    # 6. SAST – Semgrep
     # =========================
     - name: Install Semgrep
       run: |
@@ -92,6 +105,10 @@ jobs:
       run: |
         cd backend/api-gateway
         semgrep --config=auto --severity=ERROR
+    - name: SAST frontend
+      run: |
+        cd frontend
+        semgrep --config=auto --severity=ERROR
     
     - name: Validate env files
       run: |
@@ -101,7 +118,7 @@ jobs:
         ls -la frontend
 
     # =========================
-    # 6. Docker Build
+    # 7. Docker Build
     # =========================
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -111,7 +128,7 @@ jobs:
         docker compose -f backend/docker-compose.yml build
 
     # =========================
-    # 7. SCA – Trivy
+    # 8. Container Security – Trivy
     # =========================
     # Nota: Se usa CRITICAL para evitar falsos positivos en dependencias transitivas
     # Las vulnerabilidades HIGH en node_modules son mayormente en dependencias de testing
@@ -137,7 +154,7 @@ jobs:
         exit-code: 1
 
     # =========================
-    # 8. Smoke test
+    # 9. Deploy & Smoke Tests
     # =========================
     - name: Run docker-compose
       run: |
